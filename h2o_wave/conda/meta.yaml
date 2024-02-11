@@ -1,0 +1,34 @@
+{% set pyproject = load_file_data('../pyproject.toml', from_recipe_dir=True) %}
+{% set project = pyproject['project'] %}
+
+package:
+  name: {{ project['name'] }}
+  version: {{ VERSION }}
+
+about:
+  home: {{ project['urls']['Homepage'] }}
+  license: {{ project['license'] }}
+  summary: {{ project['description'] }}
+  description: H2O Wave is a lightweight software stack for programming interactive web applications entirely in Python (no HTML/Javascript/CSS required).
+  dev_url: {{ project['urls']['Repository'] }}
+  doc_url: {{ project['urls']['Homepage'] }}
+
+requirements:
+  build: 
+    {% for dep in pyproject['build-system']['requires'] %}
+    - {{ dep.lower() }}
+    {% endfor %}
+  run:
+    {% for dep in project['dependencies'] %}
+    - {{ dep.lower() }}
+    {% endfor %}
+source:
+  path: ..
+
+build:
+  noarch: python
+  script: python -m pip install . -vv
+  entry_points:
+    {% for module, entrypoints in project['scripts'].items() %}
+      - {{ module }} = {{ entrypoints }}
+    {% endfor %}
